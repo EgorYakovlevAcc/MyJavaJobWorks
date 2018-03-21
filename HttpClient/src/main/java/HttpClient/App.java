@@ -11,8 +11,12 @@ public class App
 
     public static void main( String[] args) throws IOException {
         Scanner scn = new Scanner(System.in);
-        methodStr = scn.next();
-        url = scn.next();
-        RequestHandler rh = new RequestHandler(methodStr, "http://" + url);
+        while((methodStr == null) && (url == null)) {
+            methodStr = scn.next();
+            url = scn.next();
+        }
+        RequestHandler rh = new RequestService(methodStr,"http://" + url);
+        rh.setURLConnection();
+        rh.useMethod();
     }
 }
