@@ -7,10 +7,12 @@ public class App
 {
     static String url;
     Scanner scn;
+    static String methodStr;
 
     public static void main( String[] args) throws IOException {
         Scanner scn = new Scanner(System.in);
-        url = scn.nextLine();
-        RequestHandler rh = new RequestHandler(url);
+        methodStr = scn.next();
+        url = scn.next();
+        RequestHandler rh = new RequestHandler(methodStr, "http://" + url);
     }
 }
