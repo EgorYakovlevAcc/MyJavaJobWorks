@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.net.*;
 import java.text.DateFormat;
@@ -12,7 +13,7 @@ class WebServer extends Thread {
         try
         {
             // что такое backlog?
-            ServerSocket server = new ServerSocket(8000, 0,
+            ServerSocket server = new ServerSocket(8080, 0,
                     InetAddress.getByName("localhost"));
 
             System.out.println("server is started");
@@ -36,15 +37,11 @@ class WebServer extends Thread {
         {
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
-
-//            // буффер данных в 64 килобайта
-//            byte buf[] = new byte[64*1024];
-//            // читаем 64кб от клиента, результат - кол-во реально принятых данных
-//            int r = is.read(buf);
             BufferedReader bfr = new BufferedReader(new InputStreamReader(is));
             String request = bfr.readLine();
             // получаем путь до документа
             String path = getPath(request);
+            System.out.println("Path: " + path);
             // если из запроса не удалось выделить путь, то
             // возвращаем "400 Bad Request"
             if(path == null)
@@ -60,10 +57,10 @@ class WebServer extends Thread {
                 // остальные заголовки
                 response = response
                         + "Connection: close\n"
-                        + "Server: SimpleWEBServer\n"
-                        + "Pragma: no-cache\n\n";
+                        + "Server: SimpleWEBServer\n";
 
                 //! выводим данные:
+                System.out.println(response);
                 os.write(response.getBytes());
                 s.close();
                 return;
@@ -74,16 +71,16 @@ class WebServer extends Thread {
             // то ищем index.html
             File f = new File(path);
             boolean flag = !f.exists();
+            System.out.println("Answer for file: " + flag);
             if(!flag)
                 if(f.isDirectory()) {
-                if(path.lastIndexOf("" + File.separator) == path.length() - 1)
-                    path = path + "index.html";
-                else
-                    path = path + File.separator + "index.html";
-                f = new File(path);
-                flag = !f.exists();
-            }
-
+                    if(path.lastIndexOf("" + File.separator) == path.length() - 1)
+                        path = path + "index.html";
+                    else
+                        path = path + File.separator + "index.html";
+                    f = new File(path);
+                    flag = !f.exists();
+                }
             // если по указанному пути файл не найден
             // то выводим ошибку "404 Not Found"
             if(flag)
@@ -100,10 +97,10 @@ class WebServer extends Thread {
                 response = response
                         + "Content-Type: text/plain\n"
                         + "Connection: close\n"
-                        + "Server: SimpleWEBServer\n"
-                        + "Pragma: no-cache\n\n";
+                        + "Server: SimpleWEBServer\n";
 
-                response = response + "File " + path + " not found!";
+                response = response + "File " + path + " not found!!";
+                System.out.println(response);
                 os.write(response.getBytes());
                 s.close();
                 return;
@@ -116,7 +113,7 @@ class WebServer extends Thread {
             int r = path.lastIndexOf(".");
             if(r > 0)
             {
-                String ext = path.substring(r);
+                String ext = path.substring(r + 1);
                 if(ext.equalsIgnoreCase("html"))
                     mime = "text/html";
                 else if(ext.equalsIgnoreCase("htm"))
@@ -130,7 +127,6 @@ class WebServer extends Thread {
                 else if(ext.equalsIgnoreCase("bmp"))
                     mime = "image/x-xbitmap";
             }
-
             // создаём ответ
 
             // первая строка ответа
@@ -155,17 +151,18 @@ class WebServer extends Thread {
                     + "Server: SimpleWEBServer\n\n";
 
             // выводим заголовок:
+            System.out.println(response);
             os.write(response.getBytes());
 
-//            // и сам файл:
-//            FileInputStream fis = new FileInputStream(path);
-//            r = 1;
-//            while(r > 0)
-//            {
-//                r = fis.read(buf);
-//                if(r > 0) os.write(buf, 0, r);
-//            }
-//            fis.close();
+            // и сам файл:
+            FileInputStream fis = new FileInputStream(path);
+            byte rb = 1;
+            while(rb > 0)
+            {
+                r = fis.read();
+                if(rb > 0) os.write();
+            }
+            fis.close();
 
             // завершаем соединение
             s.close();
@@ -175,9 +172,7 @@ class WebServer extends Thread {
     }
 
 
-    // "вырезает" из HTTP заголовка URI ресурса и конвертирует его в filepath
-    // URI берётся только для GET и POST запросов, иначе возвращается null
-    protected String getPath(String header)
+    private String getPath(String header)
     {
         // ищем URI, указанный в HTTP запросе
         // URI ищется только для методов POST и GET, иначе возвращается null
@@ -203,8 +198,6 @@ class WebServer extends Thread {
         if(i > 0) URI = URI.substring(0, i);
 
         // конвертируем URI в путь до документов
-        // предполагается, что документы лежат там же, где и сервер
-        // иначе ниже нужно переопределить path
         path = "." + File.separator;
         char a;
         for(i = 0; i < URI.length(); i++)
@@ -220,16 +213,13 @@ class WebServer extends Thread {
     }
 
 
-    // "вырезает" из строки str часть, находящуюся между строками start и end
-    // если строки end нет, то берётся строка после start
-    // если кусок не найден, возвращается null
-    // для поиска берётся строка до "\n\n" или "\r\n\r\n", если таковые присутствуют
-    protected String extract(String str, String start, String end)
+    // вырезает из строки str часть, находящуюся между строками start и end
+    private String extract(String str, String start, String end)
     {
         int s = str.indexOf("\n\n", 0), e;
         if(s < 0) s = str.indexOf("\r\n\r\n", 0);
         if(s > 0) str = str.substring(0, s);
-        s = str.indexOf(start, 0)+start.length();
+        s = str.indexOf(start, 0) + start.length();
         if(s < start.length()) return null;
         e = str.indexOf(end, s);
         if(e < 0) e = str.length();
