@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<people>
+
+    <person>
+        <name>Joe</name>
+        <sername>Dassin</sername>
+        <age>79</age>
+        <country>France</country>
+    </person>
+
+    <person>
+        <name>Tom</name>
+        <sername>Tomoff</sername>
+        <age>29</age>
+        <country>Germany</country>
+    </person>
+
+    <person>
+        <name>Egor</name>
+        <sername>Yakovlev</sername>
+        <age>19</age>
+        <country>Russia</country>
+    </person>
+
+    <person>
+        <name>Claire</name>
+        <sername>Stivenson</sername>
+        <age>25</age>
+        <country>USA</country>
+    </person>
+
+    <person>
+        <name>Lionel</name>
+        <sername>Messi</sername>
+        <age>30</age>
+        <country>Argentine</country>
+    </person>
+
+</people>

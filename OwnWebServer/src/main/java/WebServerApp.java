@@ -156,11 +156,11 @@ class WebServer extends Thread {
 
             // и сам файл:
             FileInputStream fis = new FileInputStream(path);
-            byte rb = 1;
+            int rb = 1;
             while(rb > 0)
             {
-                r = fis.read();
-                if(rb > 0) os.write();
+                rb = fis.read();
+                if(rb > 0) os.write(rb);
             }
             fis.close();
 
